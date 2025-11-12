@@ -1,1 +1,21 @@
+services:
+  db:
+    image: postgres:16
+    container_name: taskboard_db
+    environment:
+      POSTGRES_DB: taskboard
+      POSTGRES_USER: taskuser
+      POSTGRES_PASSWORD: taskpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - taskboard_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskuser -d taskboard"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  taskboard_pgdata:
 

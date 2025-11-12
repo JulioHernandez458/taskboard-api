@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/taskboard}
+    username: ${DB_USER:taskuser}
+    password: ${DB_PASS:taskpass}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update        # SOLO para dev/MVP. Luego migra a Flyway.
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc.time_zone: UTC
+  mvc:
+    problemdetails:
+      enabled: true
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+app:
+  jwt:
+    secret: "EoQizSX8wwNopaEM/5qXNXfRJ/nA0Smy0FdUDbO19TR+pFcSrcDmXGiYbaPr9lhHdgARNCqpi7tqQAFmNyXLTg=="
+    expirationMinutes: 60
