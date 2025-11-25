@@ -2,6 +2,7 @@ package com.company.board;
 
 import com.company.board.dto.BoardCreateRequest;
 import com.company.board.dto.BoardResponse;
+import com.company.board.dto.BoardUpdateRequest;
 import com.company.board.web.BoardPageResponse;
 
 import jakarta.validation.Valid;
@@ -35,6 +36,14 @@ public class BoardController {
     @GetMapping("/{id}")
     public BoardResponse getById(@PathVariable Long id) {
         return boards.getById(id);
+    }
+    
+    @PutMapping("/{id}")
+    public BoardResponse update(
+            @PathVariable Long id,
+            @RequestBody @jakarta.validation.Valid BoardUpdateRequest request
+    ) {
+        return boards.update(id, request);
     }
 }
 

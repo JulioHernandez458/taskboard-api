@@ -2,6 +2,7 @@ package com.company.board;
 
 import com.company.board.dto.BoardCreateRequest;
 import com.company.board.dto.BoardResponse;
+import com.company.board.dto.BoardUpdateRequest;
 import com.company.board.web.BoardPageResponse;
 import com.company.security.CurrentUser;
 import org.springframework.stereotype.Service;
@@ -78,6 +79,26 @@ public class BoardService {
                 board.getTitle(),
                 board.isArchived(),
                 board.getCreatedAt()
+        );
+    }
+    
+    @Transactional
+    public BoardResponse update(Long id, BoardUpdateRequest request) {
+        Long ownerId = currentUser.id();
+
+        Board board = boards.findByIdAndOwnerId(id, ownerId)
+                .orElseThrow(() -> new BoardNotFoundException(id));
+
+        board.setTitle(request.title());
+        board.setArchived(request.archived());
+
+        Board saved = boards.save(board);
+
+        return new BoardResponse(
+                saved.getId(),
+                saved.getTitle(),
+                saved.isArchived(),
+                saved.getCreatedAt()
         );
     }
     
