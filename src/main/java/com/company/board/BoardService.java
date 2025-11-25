@@ -66,5 +66,20 @@ public class BoardService {
         );
     }
     
+    
+    public BoardResponse getById(Long id) {
+        Long ownerId = currentUser.id();
+
+        Board board = boards.findByIdAndOwnerId(id, ownerId)
+                .orElseThrow(() -> new BoardNotFoundException(id));
+
+        return new BoardResponse(
+                board.getId(),
+                board.getTitle(),
+                board.isArchived(),
+                board.getCreatedAt()
+        );
+    }
+    
 }
 

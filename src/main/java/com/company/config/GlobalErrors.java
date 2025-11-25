@@ -1,8 +1,11 @@
 package com.company.config;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import com.company.board.BoardNotFoundException;
 
 @RestControllerAdvice
 public class GlobalErrors {
@@ -13,5 +16,13 @@ public class GlobalErrors {
     pd.setTitle("Bad Request");
     pd.setDetail(ex.getMessage());
     return pd;
+  }
+  
+  @ExceptionHandler(BoardNotFoundException.class)
+  ProblemDetail handleBoardNotFound(BoardNotFoundException ex) {
+      ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+      pd.setTitle("Board not found");
+      pd.setDetail(ex.getMessage());
+      return pd;
   }
 }

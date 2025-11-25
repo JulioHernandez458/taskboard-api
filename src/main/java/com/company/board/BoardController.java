@@ -31,5 +31,10 @@ public class BoardController {
     public BoardResponse create(@RequestBody @Valid BoardCreateRequest request) {
         return boards.create(request);
     }
+    
+    @GetMapping("/{id}")
+    public BoardResponse getById(@PathVariable Long id) {
+        return boards.getById(id);
+    }
 }
 
