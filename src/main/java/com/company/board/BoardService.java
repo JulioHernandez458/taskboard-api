@@ -102,5 +102,17 @@ public class BoardService {
         );
     }
     
+    @Transactional
+    public void delete(Long id) {
+        Long ownerId = currentUser.id();
+
+        boolean exists = boards.existsByIdAndOwnerId(id, ownerId);
+        if (!exists) {
+            throw new BoardNotFoundException(id);
+        }
+
+        boards.deleteByIdAndOwnerId(id, ownerId);
+    }
+    
 }
 

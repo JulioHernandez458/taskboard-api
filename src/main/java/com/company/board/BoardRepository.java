@@ -16,4 +16,7 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     Optional<Board> findByIdAndOwnerId(Long id, Long ownerId);
 
     boolean existsByIdAndOwnerId(Long id, Long ownerId);
+    
+    void deleteByIdAndOwnerId(Long id, Long ownerId);
+
 }

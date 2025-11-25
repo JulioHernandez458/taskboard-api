@@ -45,5 +45,11 @@ public class BoardController {
     ) {
         return boards.update(id, request);
     }
+    
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        boards.delete(id);
+    }
 }
 
