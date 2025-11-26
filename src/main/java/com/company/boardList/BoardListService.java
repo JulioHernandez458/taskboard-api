@@ -6,6 +6,9 @@ import com.company.board.BoardRepository;
 import com.company.boardList.web.BoardListCreateRequest;
 import com.company.boardList.web.BoardListResponse;
 import com.company.security.CurrentUser;
+
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +48,47 @@ public class BoardListService {
                 saved.getTitle(),
                 saved.getPosition(),
                 saved.getCreatedAt()
+        );
+    }
+    
+    public List<BoardListResponse> listByBoard(Long boardId) {
+        Long ownerId = currentUser.id();
+
+        boolean boardExists = boards.existsByIdAndOwnerId(boardId, ownerId);
+        if (!boardExists) {
+            throw new BoardNotFoundException(boardId);
+        }
+
+        return lists.findByBoardIdOrderByPositionAsc(boardId).stream()
+                .map(l -> new BoardListResponse(
+                        l.getId(),
+                        l.getBoardId(),
+                        l.getTitle(),
+                        l.getPosition(),
+                        l.getCreatedAt()
+                ))
+                .toList();
+    }
+    
+    public BoardListResponse getById(Long boardId, Long listId) {
+        Long ownerId = currentUser.id();
+
+        // 1. Validar ownership del board
+        boolean boardExists = boards.existsByIdAndOwnerId(boardId, ownerId);
+        if (!boardExists) {
+            throw new BoardNotFoundException(boardId);
+        }
+
+        // 2. Validar que la lista pertenece a ese board
+        BoardList list = lists.findByIdAndBoardId(listId, boardId)
+                .orElseThrow(() -> new BoardListNotFoundException(listId));
+
+        return new BoardListResponse(
+                list.getId(),
+                list.getBoardId(),
+                list.getTitle(),
+                list.getPosition(),
+                list.getCreatedAt()
         );
     }
 }

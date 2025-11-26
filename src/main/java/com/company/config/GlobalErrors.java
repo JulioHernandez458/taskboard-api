@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.company.board.BoardNotFoundException;
+import com.company.boardList.BoardListNotFoundException;
 
 @RestControllerAdvice
 public class GlobalErrors {
@@ -25,4 +26,13 @@ public class GlobalErrors {
       pd.setDetail(ex.getMessage());
       return pd;
   }
+  
+  @ExceptionHandler(BoardListNotFoundException.class)
+  ProblemDetail handleListNotFound(BoardListNotFoundException ex) {
+      ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+      pd.setTitle("List not found");
+      pd.setDetail(ex.getMessage());
+      return pd;
+  }
+  
 }
