@@ -15,4 +15,7 @@ public interface BoardListRepository extends JpaRepository<BoardList, Long> {
     boolean existsByIdAndBoardId(Long id, Long boardId);
 
     int countByBoardId(Long boardId);
+    
+    void deleteByIdAndBoardId(Long id, Long boardId);
+
 }

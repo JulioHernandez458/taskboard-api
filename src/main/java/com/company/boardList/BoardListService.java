@@ -117,4 +117,21 @@ public class BoardListService {
                 saved.getCreatedAt()
         );
     }
+    
+    @Transactional
+    public void delete(Long boardId, Long listId) {
+        Long ownerId = currentUser.id();
+
+        boolean boardExists = boards.existsByIdAndOwnerId(boardId, ownerId);
+        if (!boardExists) {
+            throw new BoardNotFoundException(boardId);
+        }
+
+        boolean listExists = lists.existsByIdAndBoardId(listId, boardId);
+        if (!listExists) {
+            throw new BoardListNotFoundException(listId);
+        }
+
+        lists.deleteByIdAndBoardId(listId, boardId);
+    }
 }

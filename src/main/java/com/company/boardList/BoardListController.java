@@ -52,4 +52,13 @@ public class BoardListController {
     ) {
         return lists.update(boardId, listId, request);
     }
+    
+    @DeleteMapping("/{listId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(
+            @PathVariable Long boardId,
+            @PathVariable Long listId
+    ) {
+        lists.delete(boardId, listId);
+    }
 }
