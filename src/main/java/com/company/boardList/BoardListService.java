@@ -5,6 +5,7 @@ import com.company.board.BoardNotFoundException;
 import com.company.board.BoardRepository;
 import com.company.boardList.web.BoardListCreateRequest;
 import com.company.boardList.web.BoardListResponse;
+import com.company.boardList.web.BoardListUpdateRequest;
 import com.company.security.CurrentUser;
 
 import java.util.List;
@@ -89,6 +90,31 @@ public class BoardListService {
                 list.getTitle(),
                 list.getPosition(),
                 list.getCreatedAt()
+        );
+    }
+    
+    @Transactional
+    public BoardListResponse update(Long boardId, Long listId, BoardListUpdateRequest request) {
+        Long ownerId = currentUser.id();
+
+        boolean boardExists = boards.existsByIdAndOwnerId(boardId, ownerId);
+        if (!boardExists) {
+            throw new BoardNotFoundException(boardId);
+        }
+
+        BoardList list = lists.findByIdAndBoardId(listId, boardId)
+                .orElseThrow(() -> new BoardListNotFoundException(listId));
+
+        list.setTitle(request.title());
+
+        BoardList saved = lists.save(list);
+
+        return new BoardListResponse(
+                saved.getId(),
+                saved.getBoardId(),
+                saved.getTitle(),
+                saved.getPosition(),
+                saved.getCreatedAt()
         );
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.company.boardList.web.BoardListCreateRequest;
 import com.company.boardList.web.BoardListResponse;
+import com.company.boardList.web.BoardListUpdateRequest;
 
 @RestController
 @RequestMapping("/api/boards/{boardId}/lists")
@@ -41,5 +42,14 @@ public class BoardListController {
             @PathVariable Long listId
     ) {
         return lists.getById(boardId, listId);
+    }
+    
+    @PutMapping("/{listId}")
+    public BoardListResponse update(
+            @PathVariable Long boardId,
+            @PathVariable Long listId,
+            @RequestBody @Valid BoardListUpdateRequest request
+    ) {
+        return lists.update(boardId, listId, request);
     }
 }
