@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import com.company.boardList.web.BoardListCreateRequest;
+import com.company.boardList.web.BoardListReorderRequest;
 import com.company.boardList.web.BoardListResponse;
 import com.company.boardList.web.BoardListUpdateRequest;
 
@@ -60,5 +61,13 @@ public class BoardListController {
             @PathVariable Long listId
     ) {
         lists.delete(boardId, listId);
+    }
+    
+    @PutMapping("/reorder")
+    public List<BoardListResponse> reorder(
+            @PathVariable Long boardId,
+            @RequestBody @Valid BoardListReorderRequest request
+    ) {
+        return lists.reorder(boardId, request);
     }
 }

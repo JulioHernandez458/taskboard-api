@@ -4,11 +4,17 @@ package com.company.boardList;
 import com.company.board.BoardNotFoundException;
 import com.company.board.BoardRepository;
 import com.company.boardList.web.BoardListCreateRequest;
+import com.company.boardList.web.BoardListReorderRequest;
 import com.company.boardList.web.BoardListResponse;
 import com.company.boardList.web.BoardListUpdateRequest;
 import com.company.security.CurrentUser;
 
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -133,5 +139,77 @@ public class BoardListService {
         }
 
         lists.deleteByIdAndBoardId(listId, boardId);
+    }
+    
+    @Transactional
+    public List<BoardListResponse> reorder(Long boardId, BoardListReorderRequest request) {
+        Long ownerId = currentUser.id();
+
+        boolean boardExists = boards.existsByIdAndOwnerId(boardId, ownerId);
+        if (!boardExists) {
+            throw new BoardNotFoundException(boardId);
+        }
+
+        List<Long> requestedIds = request.listIds();
+
+        // 1) obtener listas actuales del board
+        List<BoardList> currentLists = lists.findByBoardIdOrderByPositionAsc(boardId);
+
+        if (currentLists.isEmpty()) {
+            // nada que reordenar: opcionalmente puedes devolver 400, pero aquí devolvemos vacío
+            return List.of();
+        }
+
+        // 2) validar tamaños
+        if (currentLists.size() != requestedIds.size()) {
+            throw invalidReorder("List size does not match current board lists");
+        }
+
+        // 3) validar que son los mismos ids (sin duplicados, sin colados)
+        Set<Long> currentIds = currentLists.stream()
+                .map(BoardList::getId)
+                .collect(Collectors.toSet());
+
+        Set<Long> requestedIdSet = new HashSet<>(requestedIds);
+
+        if (requestedIdSet.size() != requestedIds.size()) {
+            // hay duplicados
+            throw invalidReorder("Duplicated list ids in reorder request");
+        }
+
+        if (!currentIds.equals(requestedIdSet)) {
+            throw invalidReorder("Request ids do not match board lists");
+        }
+
+        // 4) mapa id -> entidad
+        Map<Long, BoardList> byId = currentLists.stream()
+                .collect(Collectors.toMap(BoardList::getId, l -> l));
+
+        // 5) reasignar posiciones según el orden del request
+        for (int i = 0; i < requestedIds.size(); i++) {
+            Long id = requestedIds.get(i);
+            BoardList list = byId.get(id);
+            list.setPosition(i);
+        }
+
+        // 6) guardar todas
+        List<BoardList> saved = lists.saveAll(currentLists);
+
+        // 7) devolver respuesta en el nuevo orden
+        return saved.stream()
+                .sorted(Comparator.comparingInt(BoardList::getPosition))
+                .map(l -> new BoardListResponse(
+                        l.getId(),
+                        l.getBoardId(),
+                        l.getTitle(),
+                        l.getPosition(),
+                        l.getCreatedAt()
+                ))
+                .toList();
+    }
+
+    private RuntimeException invalidReorder(String message) {
+        // Puedes definir tu propia excepción; aquí uso IllegalArgumentException
+        return new IllegalArgumentException(message);
     }
 }
